@@ -87,7 +87,27 @@ def move(direction):
         print(f'Unknown move direction: {direction}')
 
 def lookAround():
-    print("NOT IMPLEMENTED!!")  # TODO
+    print()
+    try:
+        if(player.location.n_to):
+            print(f"To the North: {player.location.n_to.name}")
+    except:
+        pass
+    try:
+        if(player.location.s_to):
+            print(f"To the South: {player.location.s_to.name}")
+    except:
+        pass
+    try:
+        if(player.location.e_to):
+            print(f"To the East:  {player.location.e_to.name}")
+    except:
+        pass
+    try:
+        if(player.location.w_to):
+            print(f"To the West:  {player.location.w_to.name}")
+    except:
+        pass
 
 def showHelp():
     maxCommandChars = 0
