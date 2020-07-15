@@ -123,6 +123,7 @@ def showHelp():
         print(f"{key.ljust(maxCommandChars+1, ' ')}: {value}")
 
 def quit_game():
+    print("Exiting...\n")
     game_active = False
     sys.exit()
 
