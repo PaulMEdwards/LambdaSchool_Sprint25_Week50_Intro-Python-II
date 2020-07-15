@@ -3,6 +3,8 @@ from room import Room
 from player import Player
 import textwrap
 
+wrapper = textwrap.TextWrapper()
+
 # Declare all the rooms
 
 rooms = {
@@ -60,7 +62,6 @@ player = Player(name, rooms['outside'])
 
 game_active = True
 
-wrapper = textwrap.TextWrapper()
 
 def move(direction):
     if(direction.lower() == 'n'):
