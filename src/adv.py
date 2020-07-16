@@ -2,28 +2,177 @@ import sys
 from room import Room
 from player import Player
 import textwrap
+import random
 
 wrapper = textwrap.TextWrapper()
 
 # Declare all the rooms
 
 rooms = {
-    'outside':  Room("Outside Cave Entrance", "North of you, the cave mount beckons"),
+    'outside':  Room("Outside Cave Entrance", "North of you, the cave mount beckons", []),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east."""),
+passages run north and east.""", []),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm."""),
+the distance, but there is no way across the chasm.""", []),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air."""),
+to north. The smell of gold permeates the air.""", []),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
 chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south."""),
+earlier adventurers. The only exit is to the south.""", []),
 }
+
+# types
+Armor=0
+Weapon=1
+# Magic=2
+Key=3
+Map=4
+Torch=5
+# Enemy=6
+
+items = [
+    {
+        'name': "Belt",
+        'description': "The Belt of Truth",
+        'type': Armor,
+        'HP': 100,
+        'DP': 0,
+        'AP': 100,
+        'SP': 0,
+        'AOG': 1,
+    },
+    {
+        'name': "Chestpiece",
+        'description': "The Body Armor of God's Righteousness",
+        'type': Armor,
+        'HP': 150,
+        'DP': 0,
+        'AP': 150,
+        'SP': 100,
+        'AOG': 1,
+    },
+    {
+        'name': "Shoes",
+        'description': "The Peace that comes from the Good News",
+        'type': Armor,
+        'HP': 50,
+        'DP': 0,
+        'AP': 50,
+        'SP': 0,
+        'AOG': 1,
+    },
+    {
+        'name': "Shield",
+        'description': "The Shield of Faith",
+        'type': Armor,
+        'HP': 400,
+        'DP': 0,
+        'AP': 500,
+        'SP': 200,
+        'AOG': 1,
+    },
+    {
+        'name': "Helmet",
+        'description': "The Helmet of Salvation",
+        'type': Armor,
+        'HP': 200,
+        'DP': 0,
+        'AP': 200,
+        'SP': 200,
+        'AOG': 1,
+    },
+    {
+        'name': "Sword",
+        'description': "The Sword of the Spirit",
+        'type': Weapon,
+        'HP': 0,
+        'DP': 1000,
+        'AP': 0,
+        'SP': 500,
+        'AOG': 1,
+    },
+    {
+        'name': "Spear",
+        'description': "Spear of Justice",
+        'type': Weapon,
+        'HP': 0,
+        'DP': 250,
+        'AP': 0,
+        'SP': 0,
+        'AOG': 0,
+    },
+    {
+        'name': "Club",
+        'description': "Caveman Club",
+        'type': Weapon,
+        'HP': 0,
+        'DP': 100,
+        'AP': 0,
+        'SP': 0,
+        'AOG': 0,
+    },
+    {
+        'name': "Torch",
+        'description': "A large stick doused on one end with a slow-burning combustible material which can be set ablaze to act as a source of light to illuminate dark places.",
+        'type': Torch,
+        'HP': 0,
+        'DP': 0,
+        'AP': 0,
+        'SP': 0,
+        'AOG': 0,
+    },
+    {
+        'name': "Map",
+        'description': "A map showing the region layout.",
+        'type': Map,
+        'HP': 0,
+        'DP': 0,
+        'AP': 0,
+        'SP': 0,
+        'AOG': 0,
+    },
+    {
+        'name': "Key",
+        'description': "A key which can be used to open a lock.",
+        'type': Key,
+        'HP': 0,
+        'DP': 0,
+        'AP': 0,
+        'SP': 0,
+        'AOG': 0,
+    },
+    # {
+    #     'name': "",
+    #     'description': "",
+    #     'type': X,
+    #     'HP': 0,
+    #     'DP': 0,
+    #     'AP': 0,
+    #     'SP': 0,
+    #     'AOG': 0,
+    # },
+]
+
+enemies = [
+    {
+        'name': "Satan",
+        'weapons': [
+            {
+                'name': "Fiery Arrows",
+                'DP': 100,
+                'SP': 100,
+            },
+        ],
+        'HP': 10000,
+        'AP': 1000,
+        'XP': 10000,
+    },
+]
 
 
 # Link rooms together
@@ -37,6 +186,20 @@ rooms['narrow'].w_to = rooms['foyer']
 rooms['narrow'].n_to = rooms['treasure']
 rooms['treasure'].s_to = rooms['narrow']
 
+# Populate rooms with items
+
+rl = len(rooms)
+enumeratedRooms = list(enumerate(rooms))
+# print(f"# rooms: {rl}")
+for item in items:
+    # print(f"Item: {item}")
+    x = random.randrange(0, rl)
+    # print(f"x: {x+1}")
+    room = rooms[enumeratedRooms[x][1]]
+    # print(room)
+    room.items.append(item)
+    # print(f"Room Items: {room.items}")
+
 #
 # Main
 #
@@ -44,7 +207,7 @@ rooms['treasure'].s_to = rooms['narrow']
 if (len(sys.argv) > 1):
     name = sys.argv[1]
 else:
-    name = input('What is your name, adventurer?\n')
+    name = input('What is your name, adventurer? ')
 
 # Make a new player object that is currently in the 'outside' room.
 player = Player(name, rooms['outside'])
@@ -88,6 +251,11 @@ def move(direction):
         print(f'Unknown move direction: {direction}')
 
 def lookAround():
+    if (len(player.location.items) > 0):
+        print(f"\nItems nearby:")
+        for item in player.location.items:
+            print(f"{item['name']}")
+
     print()
     try:
         if(player.location.n_to):
@@ -110,6 +278,50 @@ def lookAround():
     except:
         pass
 
+def equip():
+    print("NOT IMPLEMENTED!!")
+
+def torch():
+    print("NOT IMPLEMENTED!!")
+
+def inventory():
+    print("NOT IMPLEMENTED!!")
+    print(f"Inventory: {player.inventory}")
+
+def openItem(item):
+    print("NOT IMPLEMENTED!!")
+
+def fight():
+    print("NOT IMPLEMENTED!!")
+
+def get():
+    if (len(player.location.items) > 0):
+        targetItem = None
+        itemName = input("Which nearby item would you like to get & put into inventory? ")
+        for item in player.location.items:
+            if (item['name'].lower() == itemName.lower()):
+                targetItem = item
+        if (targetItem == None):
+            print(f"Couldn't find nearby item named '{itemName}'")
+        else:
+            player.inventory.append(targetItem)
+            player.location.items.remove(targetItem)
+    else:
+        print(f"There are no items here.")
+
+def drop():
+    if (len(player.inventory) > 0):
+        targetItem = None
+        itemName = input("Which item would you like to drop from inventory? ")
+        for item in player.inventory:
+            if (item['name'].lower() == itemName.lower()):
+                targetItem = item
+        if (targetItem == None):
+            print(f"Couldn't find inventory item named '{itemName}'")
+        else:
+            player.location.items.append(targetItem)
+            player.inventory.remove(targetItem)
+
 def showHelp():
     maxCommandChars = 0
     maxResultChars = 0
@@ -128,8 +340,6 @@ def quit_game():
     sys.exit()
 
 commands = {
-    'q': 'Quit',
-    'quit': 'Quit',
     'w': 'Move North',
     'north': 'Move North',
     's': 'Move South',
@@ -138,33 +348,36 @@ commands = {
     'east': 'Move East',
     'd': 'Move West',
     'west': 'Move West',
-    # 'e': 'Equip',
-    # 'equip': 'Equip',
+    'e': 'Equip',
+    'equip': 'Equip',
     # 'r': 'Retreat',
     # 'retreat': 'Retreat',
-    # 't': 'Torch',
-    # 'torch': 'Torch',
+    't': 'Torch',
+    'torch': 'Torch',
     # 'y': 'Yell',
     # 'yell': 'Yell',
     # 'u': 'Use',
     # 'use': 'Use',
-    # 'i': 'Inventory',
-    # 'inv': 'Inventory',
-    # 'inventory': 'Inventory',
-    # 'o': 'Open',
-    # 'open': 'Open',
-    # 'f': 'Fight',
-    # 'fight': 'Fight',
-    # 'g': 'Get',
-    # 'get': 'Get',
-    # 'drop': 'Drop',
+    'i': 'Inventory',
+    'inv': 'Inventory',
+    'inventory': 'Inventory',
+    'o': 'Open',
+    'open': 'Open',
+    'f': 'Fight',
+    'fight': 'Fight',
+    'g': 'Get',
+    'get': 'Get',
+    'dr': 'Drop',
+    'drop': 'Drop',
     'l': 'Look',
     'look': 'Look',
-    # 'm': 'Map',
-    # 'map': 'Map',
+    'm': 'Map',
+    'map': 'Map',
     '?': 'Show Help',
     'h': 'Show Help',
     'help': 'Show Help',
+    'q': 'Quit',
+    'quit': 'Quit',
 }
 
 def inputSwitcher(arg):
@@ -181,26 +394,26 @@ def inputSwitcher(arg):
         move('w')
     elif (a == '?' or a == 'h' or a == 'help'):
         showHelp()
-    # elif (a == 'e' or a == 'equip'):
-    #     equip()
+    elif (a == 'e' or a == 'equip'):
+        equip()
     # elif (a == 'r' or a == 'retreat'):
     #     retreat()
-    # elif (a == 't' or a == 'torch'):
-    #     torch()
+    elif (a == 't' or a == 'torch'):
+        torch()
     # elif (a == 'y' or a == 'yell'):
     #     yell()
     # elif (a == 'u' or a == 'use'):
     #     use()
-    # elif (a == 'i' or a == 'inv' or a == 'inventory'):
-    #     inventory()
-    # elif (a == 'o' or a == 'open'):
-    #     openItem()
-    # elif (a == 'f' or a == 'fight'):
-    #     fight()
-    # elif (a == 'g' or a == 'get'):
-    #     get()
-    # elif (a == 'drop'):
-    #     drop()
+    elif (a == 'i' or a == 'inv' or a == 'inventory'):
+        inventory()
+    elif (a == 'o' or a == 'open'):
+        openItem()
+    elif (a == 'f' or a == 'fight'):
+        fight()
+    elif (a == 'g' or a == 'get'):
+        get()
+    elif (a == 'dr' or a == 'drop'):
+        drop()
     elif (a == 'l' or a == 'look'):
         lookAround()
     # elif (a == 'm' or a == 'map'):
